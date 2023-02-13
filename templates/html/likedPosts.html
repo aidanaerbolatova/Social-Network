@@ -9,15 +9,16 @@
   <!-- Bootstrap CSS v5.2.0-beta1 -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css"  integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
 </head>
+
 <body style="background: #171c22;">
 <nav class="navbar navbar-expand-lg" >
   <div class="container-fluid">
     <a class="navbar-brand ms-3 text-white " id="forum" href="/">FORUM</a>
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
       <ul class="navbar-nav m-auto mb-2 mb-lg-0"></ul>
-      {{if .User}}
-      <form action="/logout" method="get">
-        <button class="border-0 signout text-white">Sign Out</button>
+      {{ if .User}}
+      <form action="/logout" method="post">
+        <button class="signout border-0 text-white">Sign Out</button>
       </form>
       {{else}}
       <a href="/signIn" class="text-decoration-none text-white" title="Account">
@@ -30,50 +31,39 @@
 <!-- --------------------------------------------------------------------------------------------------------------------- -->
 <div class="container-fluid">
   <div class="row " id="row">
+    {{if .User}}
     <div class="col-2" >
-      <div class="img">
-        <img class="rounded-circle" id="img" src="/templates/images/profile.jpg" >
-      </div>
-      <div class="username text-white" id="username">
-        <p>{{ .User}}</p>
-      </div>
+      <div class="img"><img class="rounded-circle" id="img" src="/templates/images/profile.jpg"></div>
+      <div class="username text-white" id="username"><p>{{ .User}}</p></div>
       <div class="myposts py-3">
-        <a href="/" class="text-decoration-none text-secondary" >
-          <img src="/templates/images/home.png" >
-          <span>Home</span>
-        </a>
+        <a href="/" class="text-decoration-none text-secondary" ><img src="/templates/images/home.png"><span>Home</span></a>
       </div>
       <div class="filterCategory py-3">
-        <a href="/categoryPost" class="text-decoration-none text-secondary">
-          <img src="/templates/images/category.png" id="categoryImg"  >
-          <span>Categories</span>
-        </a>
+        <a href="/categoryPost" class="text-decoration-none text-secondary"><img src="/templates/images/category.png" id="categoryImg"  ><span>Categories</span></a>
       </div>
       <div class="filterUsers py-3">
-        <a href="/myposts" class="text-decoration-none text-secondary">
-          <img src="/templates/images/user.png"  id="myPostImg" >
-          <span>My posts</span>
-        </a>
+        <a href="/myposts" class="text-decoration-none text-secondary"><img src="/templates/images/user.png" id="myPostImg"><span>My posts</span></a>
       </div>
       <div class="filterLikes py-3">
-        <a href="/likedPost" class="text-decoration-none text-secondary">
-          <img src="/templates/images/like.png" id="likeImg"  >
-          <span>Likes</span>
-        </a>
+        <a href="/likedPost" class="text-decoration-none text-secondary"><img src="/templates/images/like.png" id="likeImg"><span>Liked Posts</span></a>
+      </div>
+      <div class="filterLikes py-3">
+        <a href="/dislikedPosts" class="text-decoration-none text-secondary"><img src="/templates/images/dislike.png" id="dislikeImg"><span>Disliked Posts</span></a>
+      </div>
+      <div class="filterLikes py-3">
+        <a href="/commentedPosts" class="text-decoration-none text-secondary"><img src="/templates/images/comment.png" id="commentImg"><span>Commented Posts</span></a>
       </div>
       <div class="allposts py-3">
-        <a href="/createPost" class="text-decoration-none text-secondary">
-          <img src="/templates/images/createPost.png" >
-          <span>Create Post</span>
-        </a>
+        <a href="/createPost" class="text-decoration-none text-secondary"><img src="/templates/images/createPost.png"><span>Create Post</span></a>
       </div>
     </div>
-    <div class="col">
+    {{end}}
+    <div class="container col">
       {{ range .Posts}}
       <div class="border-0 rounded my-2" style="background-color: #242b33;" >
         <div class="user row" style="padding-top: 15px;">
           <div class="userPhoto col-1" style="padding-left: 2%; width: 4%;">
-            <img src="templates/images/user.png"  style="width: 45px;">
+            <img src="templates/images/user.png" alt="" style="width: 45px;">
           </div>
           <div class="userUsername col-10 px-4">
             <span style="color: white;">{{.Author}}</span>
@@ -81,9 +71,14 @@
           </div>
         </div>
         <div class="printPost" style="padding-left: 20px;">
-          <p style="color: white; font-size: 22px; font-weight: bold; ">{{.Title}}</p>
+          <span class="p-1" style="color: aliceblue; font-weight: bold;">Category:</span>
+          <span style="color: aliceblue;">{{ .Categories}}</p>
+          <p style="color: white; font-size: 22px; font-weight: bold; ">{{.Title}}</span>
           <p style="color: white">{{.Text}}</p>
         </div>
+        <form action="/post" method="get">
+          <button class="btn btn-outline-secondary" style="border-color:#313840 ; color: aliceblue; margin-left: 9px;" type="submit" value="{{.Id}}" name="postID">more...</button>
+        </form>
         <div style="display: flex;">
           <div style="display: flex;">
             <form action="/like" method="post">
@@ -100,7 +95,7 @@
             </form>
             <form action="/post" method="get">
               <button class="btn btn-outline-secondary mx-2" style="border-color:#313840 ; color: aliceblue; height: 40px; margin-top: 16px;" type="submit" value="{{.Id}}" name="postID">
-                  <img src="templates/images/comment.png">
+                <img src="templates/images/comment.png">
               </button>
             </form>
           </div>

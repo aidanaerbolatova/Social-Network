@@ -16,9 +16,7 @@
     <a class="navbar-brand ms-3 text-white " id="forum" href="/">FORUM</a>
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
       <ul class="navbar-nav m-auto mb-2 mb-lg-0">
-        <li class="nav-item">
-          <a href="/" class="nav-link active text-white" aria-current="page">Home</a>
-        </li>
+        <li class="nav-item"><a href="/" class="nav-link active text-white" aria-current="page">Home</a></li>
       </ul>
     </div>
   </div>
@@ -61,13 +59,8 @@
       {{ range .}}
       <div class="border-0 rounded my-2" style="background-color: #242b33;" >
         <div class="user row" style="padding-top: 15px;">
-          <div class="userPhoto col-1" style="padding-left: 2%; width: 4%;">
-            <img src="templates/images/user.png" alt="" style="width: 45px;">
-          </div>
-          <div class="userUsername col-10 px-4">
-            <span style="color: white;">{{.Author}}</span>
-            <p style="color: white; font-size: 13px;">{{.CreatedAt}}</p>
-          </div>
+          <div class="userPhoto col-1" style="padding-left: 2%; width: 4%;"><img src="templates/images/user.png" alt="" style="width: 45px;"></div>
+          <div class="userUsername col-10 px-4"><span style="color: white;">{{.Author}}</span><p style="color: white; font-size: 13px;">{{.CreatedAt}}</p></div>
         </div>
         <div class="printPost" style="padding-left: 20px;">
           <span class="p-1" style="color: aliceblue; font-weight: bold;">Category:</span>
@@ -75,18 +68,19 @@
           <p style="color: white; font-size: 22px; font-weight: bold; ">{{.Title}}</span>
           <p style="color: white">{{.Text}}</p>
         </div>
+        <form action="/post" method="get">
+          <button class="btn btn-outline-secondary" style="border-color:#313840 ; color: aliceblue; margin-left: 9px;" type="submit" value="{{.Id}}" name="postID">more...</button>
+        </form>
         <div style="display: flex;">
           <div style="display: flex;">
             <form action="/like" method="post">
               <button class="btn btn-outline-secondary mx-2" value="{{.Id}}"  name="postId" style="border-color:#313840 ; color: aliceblue; height: 40px; margin-top: 16px;" type="submit" >
-                <img src="templates/images/like.png">
-                <span style="padding-left: 5px;">{{.Like}}</span>
+                <img src="templates/images/like.png"><span style="padding-left: 5px;">{{.Like}}</span>
               </button>
             </form>
             <form action="/dislike" method="post">
               <button class="btn btn-outline-secondary " value="{{.Id}}" name="postId" style="border-color:#313840 ; color: aliceblue; height: 40px; margin-top: 16px;" type="submit" >
-                <img src="templates/images/dislike.png" >
-                <span style="padding-left: 5px;">{{.Dislike}}</span>
+                <img src="templates/images/dislike.png" ><span style="padding-left: 5px;">{{.Dislike}}</span>
               </button>
             </form>
             <form action="/post" method="get">

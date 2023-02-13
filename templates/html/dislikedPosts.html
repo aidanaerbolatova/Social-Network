@@ -17,7 +17,7 @@
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
       <ul class="navbar-nav m-auto mb-2 mb-lg-0"></ul>
       {{ if .User}}
-      <form action="/logout" method="get">
+      <form action="/logout" method="post">
         <button class="signout border-0 text-white">Sign Out</button>
       </form>
       {{else}}
@@ -33,41 +33,28 @@
   <div class="row " id="row">
     {{if .User}}
     <div class="col-2" >
-      <div class="img">
-        <img class="rounded-circle" id="img" src="/templates/images/profile.jpg" alt="">
-      </div>
-      <div class="username text-white" id="username">
-        <p>{{ .User}}</p>
-      </div>
+      <div class="img"><img class="rounded-circle" id="img" src="/templates/images/profile.jpg"></div>
+      <div class="username text-white" id="username"><p>{{ .User}}</p></div>
       <div class="myposts py-3">
-        <a href="/" class="text-decoration-none text-secondary" >
-          <img src="/templates/images/home.png" alt="">
-          <span>Home</span>
-        </a>
+        <a href="/" class="text-decoration-none text-secondary" ><img src="/templates/images/home.png"><span>Home</span></a>
       </div>
       <div class="filterCategory py-3">
-        <a href="/categoryPost" class="text-decoration-none text-secondary">
-          <img src="/templates/images/category.png" id="categoryImg"  >
-          <span>Categories</span>
-        </a>
+        <a href="/categoryPost" class="text-decoration-none text-secondary"><img src="/templates/images/category.png" id="categoryImg"  ><span>Categories</span></a>
       </div>
       <div class="filterUsers py-3">
-        <a href="/myposts" class="text-decoration-none text-secondary">
-          <img src="/templates/images/user.png" id="myPostImg">
-          <span>My posts</span>
-        </a>
+        <a href="/myposts" class="text-decoration-none text-secondary"><img src="/templates/images/user.png" id="myPostImg"><span>My posts</span></a>
       </div>
       <div class="filterLikes py-3">
-        <a href="/likedPost" class="text-decoration-none text-secondary">
-          <img src="/templates/images/like.png" id="likeImg">
-          <span>Likes</span>
-        </a>
+        <a href="/likedPost" class="text-decoration-none text-secondary"><img src="/templates/images/like.png" id="likeImg"><span>Liked Posts</span></a>
+      </div>
+      <div class="filterLikes py-3">
+        <a href="/dislikedPosts" class="text-decoration-none text-secondary"><img src="/templates/images/dislike.png" id="dislikeImg"><span>Disliked Posts</span></a>
+      </div>
+      <div class="filterLikes py-3">
+        <a href="/commentedPosts" class="text-decoration-none text-secondary"><img src="/templates/images/comment.png" id="commentImg"><span>Commented Posts</span></a>
       </div>
       <div class="allposts py-3">
-        <a href="/createPost" class="text-decoration-none text-secondary">
-          <img src="/templates/images/createPost.png" alt="">
-          <span>Create Post</span>
-        </a>
+        <a href="/createPost" class="text-decoration-none text-secondary"><img src="/templates/images/createPost.png"><span>Create Post</span></a>
       </div>
     </div>
     {{end}}
@@ -89,6 +76,9 @@
             <p style="color: white; font-size: 22px; font-weight: bold; ">{{.Title}}</span>
           <p style="color: white">{{.Text}}</p>
         </div>
+        <form action="/post" method="get">
+          <button class="btn btn-outline-secondary" style="border-color:#313840 ; color: aliceblue; margin-left: 9px;" type="submit" value="{{.Id}}" name="postID">more...</button>
+        </form>
         <div style="display: flex;">
           <div style="display: flex;">
             <form action="/like" method="post">
