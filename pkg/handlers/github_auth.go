@@ -27,13 +27,13 @@ var (
 	ghSignInCfg = &models.OauthCfg{
 		ClientID:     ghClientIDSignIn,
 		ClientSecret: ghClientSecretSignIn,
-		RedirectURL:  "http://localhost:8080/signIn/github/callback",
+		RedirectURL:  "https://localhost:8080/signIn/github/callback",
 		Scopes:       []string{"user:email"},
 	}
 	ghSignUpCfg = &models.OauthCfg{
 		ClientID:     ghClientIDSignUp,
 		ClientSecret: ghClientSecretSignUp,
-		RedirectURL:  "http://localhost:8080/signUp/github/callback",
+		RedirectURL:  "https://localhost:8080/signUp/github/callback",
 		Scopes:       []string{"user:email"},
 	}
 )

@@ -1,12 +1,14 @@
 package main
 
 import (
+	"log"
+
 	"Forum"
 	"Forum/pkg/handlers"
 	"Forum/pkg/repository"
 	"Forum/pkg/service"
+
 	_ "github.com/mattn/go-sqlite3"
-	"log"
 )
 
 func main() {
@@ -19,7 +21,7 @@ func main() {
 	services := service.NewService(repo)
 	handler := handlers.NewHandler(services)
 
-	log.Printf("Starting server...\nhttp://localhost%v/\n", ":"+config.Port)
+	log.Printf("Starting server...\nhttps://localhost%v/\n", ":"+config.Port)
 
 	srv := new(Forum.Server)
 	if err := srv.Run(config.Port, handler.InitRoutes()); err != nil {

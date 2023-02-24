@@ -18,8 +18,8 @@ const (
 	tokenURL     = "https://oauth2.googleapis.com/token"
 	clientID     = "1095628612590-6f670bssurhsgdv33glilg582skv530a.apps.googleusercontent.com"
 	clientSecret = "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"
-	signUpURI    = "http://localhost:8080/signUp/callback"
-	signInURI    = "http://localhost:8080/signIn/callback"
+	signUpURI    = "https://localhost:8080/signUp/callback"
+	signInURI    = "https://localhost:8080/signIn/callback"
 )
 
 var googleConfig = &models.OauthCfg{
