@@ -18,24 +18,27 @@ func NewAuthService(repo repository.Authorization) *AuthService {
 }
 
 func (a *AuthService) CreateUser(user models.User) error {
+	_, err := a.repo.CheckInvalid(user)
+	if err == nil {
+		return ErrCheckInvalid
+	}
 	if err := checkEmail(user.Email); err != nil {
 		return err
 	}
 	if err := checkUsername(user.Username); err != nil {
 		return err
 	}
-	ok := checkPassword(user.Password)
-	if !ok {
-		return errors.New("password is not valid")
+	if user.Method == "" {
+		ok := checkPassword(user.Password)
+		if !ok {
+			return errors.New("password is not valid")
+		}
+		user.Password, err = generatePasswordHash(user.Password)
+		if err != nil {
+			return err
+		}
 	}
-	_, err := a.repo.CheckInvalid(user.Email, user.Username)
-	if err == nil {
-		return ErrCheckInvalid
-	}
-	user.Password, err = generatePasswordHash(user.Password)
-	if err != nil {
-		return err
-	}
+
 	return a.repo.CreateUser(user)
 }
 

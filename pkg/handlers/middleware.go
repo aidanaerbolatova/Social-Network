@@ -41,13 +41,11 @@ func (h *Handler) AuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
 			next.ServeHTTP(writer, request.WithContext(context.WithValue(request.Context(), ctxKeyUser, models.User{})))
 			return
 		}
-
 		user, err = h.services.GetUserByToken(token.AuthToken)
 		if err != nil {
 			next.ServeHTTP(writer, request.WithContext(context.WithValue(request.Context(), ctxKeyUser, models.User{})))
 			return
 		}
-
 		next.ServeHTTP(writer, request.WithContext(context.WithValue(request.Context(), ctxKeyUser, user)))
 	}
 }

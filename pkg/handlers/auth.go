@@ -38,12 +38,12 @@ func (h *Handler) SignUp(w http.ResponseWriter, r *http.Request) {
 		username, ok2 := r.Form["username"]
 		password, ok3 := r.Form["password"]
 		if !ok1 {
-			h.HandleErrorPage(w, http.StatusBadRequest, errors.New("email is not field"))
+			h.HandleErrorPage(w, http.StatusBadRequest, errors.New("enter the correct email"))
 			return
 		} else if !ok2 {
-			h.HandleErrorPage(w, http.StatusBadRequest, errors.New("username is not field"))
+			h.HandleErrorPage(w, http.StatusBadRequest, errors.New("enter the correct username"))
 		} else if !ok3 {
-			h.HandleErrorPage(w, http.StatusBadRequest, errors.New("password is not field"))
+			h.HandleErrorPage(w, http.StatusBadRequest, errors.New("enter the correct password"))
 		}
 		user := models.User{
 			Email:    email[0],
@@ -88,8 +88,11 @@ func (h *Handler) SignIn(w http.ResponseWriter, r *http.Request) {
 		}
 		username, ok1 := r.Form["username"]
 		password, ok2 := r.Form["password"]
-		if !ok1 || !ok2 {
-			h.HandleErrorPage(w, http.StatusBadRequest, errors.New(http.StatusText(http.StatusBadRequest)))
+		if !ok1 {
+			h.HandleErrorPage(w, http.StatusBadRequest, errors.New("enter the correct username"))
+			return
+		} else if !ok2 {
+			h.HandleErrorPage(w, http.StatusBadRequest, errors.New("enter the correct password"))
 			return
 		}
 		token, err := h.services.Authorization.GenerateToken(username[0], password[0], false)

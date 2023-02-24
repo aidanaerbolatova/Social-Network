@@ -175,7 +175,7 @@ func (h *Handler) userFromGithubInfo(code string, cfg *models.OauthCfg) (*models
 	user := &models.User{
 		Username: users.Username,
 		Email:    email,
-		Password: "ForumAuthentication01!01",
+		Method:   "github",
 	}
 
 	return user, nil

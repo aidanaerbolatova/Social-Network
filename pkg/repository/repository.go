@@ -10,7 +10,7 @@ type Authorization interface {
 	CreateUser(user models.User) error
 	GetUser(username, email string) (models.User, error)
 	AddToken(token models.Token) (models.Token, error)
-	CheckInvalid(email, username string) (models.User, error)
+	CheckInvalid(user models.User) (models.User, error)
 	GetToken(token string) (models.Token, error)
 	GetUserByToken(token string) (models.User, error)
 	DeleteToken(token string) error

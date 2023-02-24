@@ -141,7 +141,7 @@ func getUserInfoFromGoogle(r *http.Request, cfg *models.OauthCfg, redirectUrl st
 	user := &models.User{
 		Username: strings.Join(strings.Split(userinfo.Name, " "), ""),
 		Email:    userinfo.Email,
-		Password: "ForumAuthentication!1",
+		Method:   "google",
 	}
 	return user, nil
 }

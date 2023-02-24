@@ -61,9 +61,11 @@ func CreateTables(db *sql.DB) error {
 	query := `
 	CREATE TABLE IF NOT EXISTS users (
 		id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, 
-		email TEXT NOT NULL UNIQUE, 
+		email TEXT NOT NULL, 
 		username TEXT NOT NULL UNIQUE, 
-		password TEXT NOT NULL
+		password TEXT NOT NULL,
+	    auth_method TEXT NOT NULL,
+	    UNIQUE(email, auth_method)
 	);
 
 	CREATE TABLE IF NOT EXISTS authorization_token (

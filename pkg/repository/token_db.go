@@ -44,7 +44,7 @@ func (r *AuthSQL) GetUserByToken(token string) (models.User, error) {
 		return user, err
 	}
 	row := r.db.QueryRowContext(ctx, "SELECT * FROM users WHERE id=$1", userToken.UserId)
-	if err := row.Scan(&user.Id, &user.Email, &user.Username, &user.Password); err != nil {
+	if err := row.Scan(&user.Id, &user.Email, &user.Username, &user.Password, &user.Method); err != nil {
 		return user, err
 	}
 	return user, nil

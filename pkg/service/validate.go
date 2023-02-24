@@ -9,7 +9,7 @@ import (
 func checkEmail(email string) error {
 	_, err := mail.ParseAddress(email)
 	if err != nil {
-		return errors.New("Email is not valid")
+		return errors.New("email is not valid")
 	}
 	return nil
 }
@@ -47,7 +47,7 @@ func checkPassword(password string) bool {
 func checkUsername(username string) error {
 	for _, char := range username {
 		if char < 32 || char > 126 {
-			return errors.New("Username is not valid")
+			return errors.New("username is not valid")
 		}
 	}
 	return nil
