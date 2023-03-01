@@ -4,15 +4,10 @@ import (
 	"Forum/models"
 	"database/sql"
 	"errors"
-	"fmt"
 	"html/template"
 	"net/http"
 	"strconv"
-)
-
-var (
-	TemplateEditPost    = "templates/html/edit.html"
-	TemplateEditComment = "templates/html/editComment.html"
+	"strings"
 )
 
 func (h *Handler) EditPost(w http.ResponseWriter, r *http.Request) {
@@ -60,12 +55,12 @@ func (h *Handler) EditPost(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		title, ok1 := r.Form["title"]
-		if !ok1 {
+		if !ok1 || len(strings.TrimSpace(title[0])) == 0 {
 			h.HandleErrorPage(w, http.StatusBadRequest, errors.New(http.StatusText(http.StatusBadRequest)+" title: empty"))
 			return
 		}
 		text, ok2 := r.Form["text"]
-		if !ok2 {
+		if !ok2 || len(strings.TrimSpace(text[0])) == 0 {
 			h.HandleErrorPage(w, http.StatusBadRequest, errors.New(http.StatusText(http.StatusBadRequest)+" text: empty"))
 		}
 		postId, ok := r.Form["postId"]
@@ -117,7 +112,6 @@ func (h *Handler) EditComment(w http.ResponseWriter, r *http.Request) {
 		}
 		comment, err := h.services.GetCommentById(commentID)
 		if err != nil {
-			fmt.Println(err)
 			if errors.Is(err, sql.ErrNoRows) {
 				h.HandleErrorPage(w, http.StatusNotFound, errors.New(http.StatusText(http.StatusNotFound)))
 				return
@@ -136,7 +130,7 @@ func (h *Handler) EditComment(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		text, ok2 := r.Form["comment"]
-		if !ok2 {
+		if !ok2 || len(strings.TrimSpace(text[0])) == 0 {
 			h.HandleErrorPage(w, http.StatusBadRequest, errors.New(http.StatusText(http.StatusBadRequest)+" comment: empty"))
 		}
 		commentId, ok := r.Form["commentId"]

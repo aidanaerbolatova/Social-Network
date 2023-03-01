@@ -17,17 +17,18 @@ var (
 	ErrCheckInvalid    = errors.New("user already exists")
 )
 
-func (a *AuthService) GenerateToken(username, password string, oauth bool) (models.Token, error) {
+func (a *AuthService) GenerateToken(users models.User, oauth bool) (models.Token, error) {
 	// get user from db
-	user, err := a.repo.GetUser(username, "")
+	user, err := a.repo.GetUser(users)
 	if err != nil {
 		return models.Token{}, err
 	}
 	if !oauth {
-		if err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
+		if err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(users.Password)); err != nil {
 			return models.Token{}, err
 		}
 	}
+
 	var token models.Token
 	token = models.Token{
 		UserId:    user.Id,

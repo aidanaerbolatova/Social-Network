@@ -8,8 +8,6 @@ import (
 	"Forum/models"
 )
 
-var TemplateMyPost = "templates/html/myposts.html"
-
 func (h *Handler) MyPost(w http.ResponseWriter, r *http.Request) {
 	temp, err := template.ParseFiles(TemplateMyPost)
 	if err != nil {

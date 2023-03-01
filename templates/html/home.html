@@ -23,11 +23,9 @@
         <li class="nav-item">
             <a href="/categoryPost" class="nav-link active text-white" aria-current="page" >Category</a>
         </li>
-        {{if .Notification}}
         <li>
             <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdrop" style="background-color: #171c22; border:none;">Notifications</button>
         </li>
-        {{end}}
     </ul>
     {{ if .User}}
     <form action="/logout" method="post">

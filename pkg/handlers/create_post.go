@@ -15,8 +15,6 @@ import (
 	"Forum/models"
 )
 
-var TemplateCreatePost = "templates/html/createPost.html"
-
 func (h *Handler) CreatePost(w http.ResponseWriter, r *http.Request) {
 	temp, err := template.ParseFiles(TemplateCreatePost)
 	if err != nil {
@@ -38,12 +36,19 @@ func (h *Handler) CreatePost(w http.ResponseWriter, r *http.Request) {
 		title, ok1 := r.Form["title"]
 		text, ok2 := r.Form["text"]
 		tag, ok3 := r.Form["tag"]
-		if !ok1 || !ok2 || !ok3 {
-			h.HandleErrorPage(w, http.StatusBadRequest, errors.New(http.StatusText(http.StatusBadRequest)))
+		if !ok1 || len(strings.TrimSpace(title[0])) == 0 {
+			h.HandleErrorPage(w, http.StatusBadRequest, errors.New("enter the correct title"))
+			return
+		} else if !ok2 || len(strings.TrimSpace(text[0])) == 0 {
+			h.HandleErrorPage(w, http.StatusBadRequest, errors.New("enter the correct text"))
+			return
+		} else if !ok3 {
+			h.HandleErrorPage(w, http.StatusBadRequest, errors.New("choose the tag"))
 			return
 		}
 		if len(strings.TrimSpace(text[0])) == 0 || len(strings.TrimSpace(title[0])) == 0 {
 			http.Redirect(w, r, "/createPost", http.StatusSeeOther)
+			return
 		}
 		tags := strings.Join(tag, " ")
 		// upload image

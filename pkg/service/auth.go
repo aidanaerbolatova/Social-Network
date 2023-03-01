@@ -17,6 +17,8 @@ func NewAuthService(repo repository.Authorization) *AuthService {
 	return &AuthService{repo: repo}
 }
 
+var CheckPassword = errors.New("your password must be 7-30 characters long, contain letters, numbers and symbols, and must not contain spaces or emoji")
+
 func (a *AuthService) CreateUser(user models.User) error {
 	_, err := a.repo.CheckInvalid(user)
 	if err == nil {
@@ -28,10 +30,10 @@ func (a *AuthService) CreateUser(user models.User) error {
 	if err := checkUsername(user.Username); err != nil {
 		return err
 	}
-	if user.Method == "" {
+	if user.Method == "authorization" {
 		ok := checkPassword(user.Password)
 		if !ok {
-			return errors.New("password is not valid")
+			return CheckPassword
 		}
 		user.Password, err = generatePasswordHash(user.Password)
 		if err != nil {

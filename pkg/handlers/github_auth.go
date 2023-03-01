@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"html/template"
 	"log"
 	"net/http"
 	"net/url"
@@ -74,7 +75,7 @@ func (h *Handler) signInCallbackGithub(w http.ResponseWriter, r *http.Request) {
 		h.HandleErrorPage(w, http.StatusInternalServerError, errors.New(http.StatusText(http.StatusInternalServerError)))
 		return
 	}
-	token, err := h.services.Authorization.GenerateToken(user.Username, user.Password, true)
+	token, err := h.services.Authorization.GenerateToken(user, true)
 	if err != nil {
 		if errors.Is(err, service.ErrorWrongPassword) {
 			h.HandleErrorPage(w, http.StatusBadRequest, service.ErrorWrongPassword)
@@ -96,51 +97,73 @@ func (h *Handler) signInCallbackGithub(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) signUpCallbackGithub(w http.ResponseWriter, r *http.Request) {
-	code := r.URL.Query().Get("code")
-
-	user, err := h.userFromGithubInfo(code, ghSignUpCfg)
-	if err != nil {
-		if errors.Is(err, service.ErrorEmail) {
-			h.HandleErrorPage(w, http.StatusBadRequest, service.ErrorEmail)
+	switch r.Method {
+	case http.MethodGet:
+		temp, err := template.ParseFiles(TemplateGetUsername)
+		if err != nil {
+			h.HandleErrorPage(w, http.StatusInternalServerError, errors.New(http.StatusText(http.StatusInternalServerError)))
 			return
 		}
-		h.HandleErrorPage(w, http.StatusInternalServerError, errors.New(http.StatusText(http.StatusInternalServerError)))
-		return
-	}
-	if err := h.services.Authorization.CreateUser(*user); err != nil {
+		if err := temp.Execute(w, nil); err != nil {
+			h.HandleErrorPage(w, http.StatusInternalServerError, errors.New(http.StatusText(http.StatusInternalServerError)))
+			return
+		}
+	case http.MethodPost:
+		code := r.URL.Query().Get("code")
+		user, err := h.userFromGithubInfo(code, ghSignUpCfg)
 		if err != nil {
-			if errors.Is(err, service.ErrCheckInvalid) {
-				h.HandleErrorPage(w, http.StatusBadRequest, service.ErrCheckInvalid)
-				return
-			} else if errors.Is(err, sql.ErrNoRows) {
-				h.HandleErrorPage(w, http.StatusUnauthorized, sql.ErrNoRows)
+			if errors.Is(err, service.ErrorEmail) {
+				h.HandleErrorPage(w, http.StatusBadRequest, service.ErrorEmail)
 				return
 			}
-			h.HandleErrorPage(w, http.StatusBadRequest, errors.New(http.StatusText(http.StatusBadRequest)))
+			h.HandleErrorPage(w, http.StatusInternalServerError, errors.New(http.StatusText(http.StatusInternalServerError)))
 			return
 		}
-	}
-	token, err := h.services.Authorization.GenerateToken(user.Username, user.Password, true)
-	if err != nil {
-		if errors.Is(err, service.ErrorWrongPassword) {
-			h.HandleErrorPage(w, http.StatusBadRequest, service.ErrorWrongPassword)
+		if err := r.ParseForm(); err != nil {
+			h.HandleErrorPage(w, http.StatusInternalServerError, errors.New(http.StatusText(http.StatusMethodNotAllowed)))
 			return
 		}
-		h.HandleErrorPage(w, http.StatusUnauthorized, errors.New(http.StatusText(http.StatusUnauthorized)))
+		username := r.Form["username"]
+		user.Username = username[0]
+		if err := h.services.Authorization.CreateUser(user); err != nil {
+			if err != nil {
+				if errors.Is(err, service.ErrCheckInvalid) {
+					h.HandleErrorPage(w, http.StatusBadRequest, service.ErrCheckInvalid)
+					return
+				} else if errors.Is(err, sql.ErrNoRows) {
+					h.HandleErrorPage(w, http.StatusUnauthorized, sql.ErrNoRows)
+					return
+				}
+				h.HandleErrorPage(w, http.StatusBadRequest, errors.New("username is already taken"))
+				return
+			}
+		}
+		token, err := h.services.Authorization.GenerateToken(user, true)
+		if err != nil {
+			if errors.Is(err, service.ErrorWrongPassword) {
+				h.HandleErrorPage(w, http.StatusBadRequest, service.ErrorWrongPassword)
+				return
+			}
+			h.HandleErrorPage(w, http.StatusUnauthorized, errors.New(http.StatusText(http.StatusUnauthorized)))
+			return
+		}
+		http.SetCookie(w, &http.Cookie{
+			Name:  "session_token",
+			Value: token.AuthToken,
+			Path:  "/",
+		})
+		http.Redirect(w, r, "/", http.StatusSeeOther)
+	default:
+		h.HandleErrorPage(w, http.StatusMethodNotAllowed, errors.New(http.StatusText(http.StatusMethodNotAllowed)))
 		return
 	}
-	http.SetCookie(w, &http.Cookie{
-		Name:  "session_token",
-		Value: token.AuthToken,
-		Path:  "/",
-	})
-	http.Redirect(w, r, "/", http.StatusSeeOther)
+
 }
 
-func (h *Handler) userFromGithubInfo(code string, cfg *models.OauthCfg) (*models.User, error) {
+func (h *Handler) userFromGithubInfo(code string, cfg *models.OauthCfg) (models.User, error) {
 	accessToken, err := githubAccessToken(cfg, code)
 	if err != nil {
-		return nil, err
+		return models.User{}, err
 	}
 
 	req, err := http.NewRequest(
@@ -149,7 +172,7 @@ func (h *Handler) userFromGithubInfo(code string, cfg *models.OauthCfg) (*models
 		nil,
 	)
 	if err != nil {
-		return nil, err
+		return models.User{}, err
 	}
 
 	authHeaderValue := fmt.Sprintf("token %s", accessToken)
@@ -158,24 +181,23 @@ func (h *Handler) userFromGithubInfo(code string, cfg *models.OauthCfg) (*models
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return nil, err
+		return models.User{}, err
 	}
 	defer resp.Body.Close()
 
 	var users *models.GithubUserInfo
 	if err := json.NewDecoder(resp.Body).Decode(&users); err != nil {
-		return nil, err
+		return models.User{}, err
 	}
 
 	email, err := emailFromGithub(code, accessToken, cfg)
 	if err != nil {
-		return nil, service.ErrorEmail
+		return models.User{}, service.ErrorEmail
 	}
 
-	user := &models.User{
-		Username: users.Username,
-		Email:    email,
-		Method:   "github",
+	user := models.User{
+		Email:  email,
+		Method: "github",
 	}
 
 	return user, nil

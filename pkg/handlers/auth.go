@@ -12,19 +12,14 @@ import (
 	"Forum/pkg/service"
 )
 
-var (
-	TemplateSignUp = "templates/html/signUp.html"
-	TemplateSignIn = "templates/html/signIn.html"
-)
-
 func (h *Handler) SignUp(w http.ResponseWriter, r *http.Request) {
-	temp, err := template.ParseFiles(TemplateSignUp)
-	if err != nil {
-		h.HandleErrorPage(w, http.StatusInternalServerError, errors.New(http.StatusText(http.StatusInternalServerError)))
-		return
-	}
 	switch r.Method {
 	case http.MethodGet:
+		temp, err := template.ParseFiles(TemplateSignUp)
+		if err != nil {
+			h.HandleErrorPage(w, http.StatusInternalServerError, errors.New(http.StatusText(http.StatusInternalServerError)))
+			return
+		}
 		if err := temp.Execute(w, nil); err != nil {
 			h.HandleErrorPage(w, http.StatusInternalServerError, errors.New(http.StatusText(http.StatusInternalServerError)))
 			return
@@ -49,6 +44,7 @@ func (h *Handler) SignUp(w http.ResponseWriter, r *http.Request) {
 			Email:    email[0],
 			Username: username[0],
 			Password: password[0],
+			Method:   "authorization",
 		}
 		err := h.services.Authorization.CreateUser(user)
 		if err != nil {
@@ -57,6 +53,9 @@ func (h *Handler) SignUp(w http.ResponseWriter, r *http.Request) {
 				return
 			} else if errors.Is(err, sql.ErrNoRows) {
 				h.HandleErrorPage(w, http.StatusUnauthorized, errors.New(http.StatusText(http.StatusUnauthorized)))
+				return
+			} else if errors.Is(err, service.CheckPassword) {
+				h.HandleErrorPage(w, http.StatusBadRequest, service.CheckPassword)
 				return
 			}
 			h.HandleErrorPage(w, http.StatusBadRequest, errors.New(http.StatusText(http.StatusBadRequest)))
@@ -95,7 +94,12 @@ func (h *Handler) SignIn(w http.ResponseWriter, r *http.Request) {
 			h.HandleErrorPage(w, http.StatusBadRequest, errors.New("enter the correct password"))
 			return
 		}
-		token, err := h.services.Authorization.GenerateToken(username[0], password[0], false)
+		user := models.User{
+			Username: username[0],
+			Password: password[0],
+			Method:   "authorization",
+		}
+		token, err := h.services.Authorization.GenerateToken(user, false)
 		if err != nil {
 			if errors.Is(err, service.ErrorWrongPassword) {
 				h.HandleErrorPage(w, http.StatusBadRequest, service.ErrorWrongPassword)

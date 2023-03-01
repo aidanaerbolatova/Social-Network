@@ -1,24 +1,18 @@
 package handlers
 
 import (
+	"Forum/models"
 	"errors"
 	"html/template"
 	"log"
 	"net/http"
 )
 
-type errorHTTP struct {
-	Status  int
-	Message error
-}
-
-var TemplateError = "templates/html/error.html"
-
 func (h *Handler) HandleErrorPage(w http.ResponseWriter, status int, serverErr error) {
 	if status >= http.StatusInternalServerError {
 		log.Printf("something went wrong %s", serverErr)
 	}
-	errHTTP := errorHTTP{
+	errHTTP := models.ErrorHTTP{
 		Status:  status,
 		Message: serverErr,
 	}

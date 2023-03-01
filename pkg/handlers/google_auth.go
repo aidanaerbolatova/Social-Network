@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"errors"
+	"html/template"
 	"log"
 	"net/http"
 	"net/url"
@@ -61,8 +62,7 @@ func (h *Handler) callbackGoogleSignIn(w http.ResponseWriter, r *http.Request) {
 		h.HandleErrorPage(w, http.StatusInternalServerError, errors.New(http.StatusText(http.StatusInternalServerError)))
 		return
 	}
-
-	token, err := h.services.Authorization.GenerateToken(user.Username, user.Password, true)
+	token, err := h.services.Authorization.GenerateToken(user, true)
 	if err != nil {
 		if errors.Is(err, service.ErrorWrongPassword) {
 			h.HandleErrorPage(w, http.StatusBadRequest, service.ErrorWrongPassword)
@@ -80,68 +80,89 @@ func (h *Handler) callbackGoogleSignIn(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) callbackGoogleSignUp(w http.ResponseWriter, r *http.Request) {
-	user, err := getUserInfoFromGoogle(r, googleConfig, signUpURI)
-	if err != nil {
-		h.HandleErrorPage(w, http.StatusInternalServerError, errors.New(http.StatusText(http.StatusInternalServerError)))
-		return
-	}
-	err = h.services.Authorization.CreateUser(*user)
-	if err != nil {
-		if errors.Is(err, service.ErrCheckInvalid) {
-			h.HandleErrorPage(w, http.StatusBadRequest, service.ErrCheckInvalid)
+	switch r.Method {
+	case http.MethodGet:
+		temp, err := template.ParseFiles(TemplateGetUsername)
+		if err != nil {
+			h.HandleErrorPage(w, http.StatusInternalServerError, errors.New(http.StatusText(http.StatusInternalServerError)))
 			return
-		} else if errors.Is(err, sql.ErrNoRows) {
+		}
+		if err := temp.Execute(w, nil); err != nil {
+			h.HandleErrorPage(w, http.StatusInternalServerError, errors.New(http.StatusText(http.StatusInternalServerError)))
+			return
+		}
+	case http.MethodPost:
+		user, err := getUserInfoFromGoogle(r, googleConfig, signUpURI)
+		if err != nil {
+			h.HandleErrorPage(w, http.StatusInternalServerError, errors.New(http.StatusText(http.StatusInternalServerError)))
+			return
+		}
+		if err := r.ParseForm(); err != nil {
+			h.HandleErrorPage(w, http.StatusInternalServerError, errors.New(http.StatusText(http.StatusInternalServerError)))
+			return
+		}
+		username := r.Form["username"]
+		user.Username = username[0]
+		err = h.services.Authorization.CreateUser(user)
+		if err != nil {
+			if errors.Is(err, service.ErrCheckInvalid) {
+				h.HandleErrorPage(w, http.StatusBadRequest, service.ErrCheckInvalid)
+				return
+			} else if errors.Is(err, sql.ErrNoRows) {
+				h.HandleErrorPage(w, http.StatusUnauthorized, errors.New(http.StatusText(http.StatusUnauthorized)))
+				return
+			}
+			h.HandleErrorPage(w, http.StatusBadRequest, errors.New("username is already taken"))
+			return
+		}
+		token, err := h.services.Authorization.GenerateToken(user, true)
+		if err != nil {
+			if errors.Is(err, service.ErrorWrongPassword) {
+				h.HandleErrorPage(w, http.StatusBadRequest, service.ErrorWrongPassword)
+				return
+			}
 			h.HandleErrorPage(w, http.StatusUnauthorized, errors.New(http.StatusText(http.StatusUnauthorized)))
 			return
 		}
-		h.HandleErrorPage(w, http.StatusBadRequest, errors.New(http.StatusText(http.StatusBadRequest)))
+		http.SetCookie(w, &http.Cookie{
+			Name:  "session_token",
+			Value: token.AuthToken,
+			Path:  "/",
+		})
+		http.Redirect(w, r, "/", http.StatusSeeOther)
+	default:
+		h.HandleErrorPage(w, http.StatusMethodNotAllowed, errors.New(http.StatusText(http.StatusMethodNotAllowed)))
 		return
 	}
-	token, err := h.services.Authorization.GenerateToken(user.Username, user.Password, true)
-	if err != nil {
-		if errors.Is(err, service.ErrorWrongPassword) {
-			h.HandleErrorPage(w, http.StatusBadRequest, service.ErrorWrongPassword)
-			return
-		}
-		h.HandleErrorPage(w, http.StatusUnauthorized, errors.New(http.StatusText(http.StatusUnauthorized)))
-		return
-	}
-	http.SetCookie(w, &http.Cookie{
-		Name:  "session_token",
-		Value: token.AuthToken,
-		Path:  "/",
-	})
-	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
-func getUserInfoFromGoogle(r *http.Request, cfg *models.OauthCfg, redirectUrl string) (*models.User, error) {
+func getUserInfoFromGoogle(r *http.Request, cfg *models.OauthCfg, redirectUrl string) (models.User, error) {
 	code := r.FormValue("code")
 	token, err := getGoogleAccessToken(cfg, code, redirectUrl)
 	if err != nil {
-		return nil, err
+		return models.User{}, err
 	}
 	request, err := http.NewRequest("GET", "https://www.googleapis.com/oauth2/v2/userinfo?access_token="+url.QueryEscape(token), nil)
 	if err != nil {
-		return nil, err
+		return models.User{}, err
 	}
 
 	resp, err := http.DefaultClient.Do(request)
 	if err != nil {
-		return nil, err
+		return models.User{}, err
 	}
 	defer resp.Body.Close()
 
-	var userinfo *models.Userinfo
+	var userinfo models.Userinfo
 	if err := json.NewDecoder(resp.Body).Decode(&userinfo); err != nil {
-		return nil, err
+		return models.User{}, err
 	}
 	if len(strings.TrimSpace(userinfo.Email)) == 0 || len(strings.TrimSpace(userinfo.Name)) == 0 {
-		return nil, errors.New("something went wrong with get user information")
+		return models.User{}, errors.New("something went wrong with get user information")
 	}
-	user := &models.User{
-		Username: strings.Join(strings.Split(userinfo.Name, " "), ""),
-		Email:    userinfo.Email,
-		Method:   "google",
+	user := models.User{
+		Email:  userinfo.Email,
+		Method: "google",
 	}
 	return user, nil
 }

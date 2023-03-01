@@ -9,8 +9,6 @@ import (
 	"Forum/models"
 )
 
-var TemplateCategory = "templates/html/categories.html"
-
 func (h *Handler) CategoryPost(w http.ResponseWriter, r *http.Request) {
 	temp, err := template.ParseFiles(TemplateCategory)
 	if err != nil {

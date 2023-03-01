@@ -11,8 +11,6 @@ import (
 	"Forum/models"
 )
 
-var TemplatePost = "templates/html/post.html"
-
 func (h *Handler) Post(w http.ResponseWriter, r *http.Request) {
 	temp, err := template.ParseFiles(TemplatePost)
 	if err != nil {

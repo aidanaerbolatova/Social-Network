@@ -9,12 +9,6 @@ import (
 	"Forum/models"
 )
 
-var (
-	TemplateLikedPosts     = "templates/html/likedPosts.html"
-	TemplateDislikedPosts  = "templates/html/dislikedPosts.html"
-	TemplateCommentedPosts = "templates/html/commented_posts.html"
-)
-
 func (h *Handler) LikedPosts(w http.ResponseWriter, r *http.Request) {
 	temp, err := template.ParseFiles(TemplateLikedPosts)
 	if err != nil {

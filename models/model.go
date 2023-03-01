@@ -95,3 +95,8 @@ type Notifications struct {
 	To     string
 	Action string
 }
+
+type ErrorHTTP struct {
+	Status  int
+	Message error
+}

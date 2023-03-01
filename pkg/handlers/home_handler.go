@@ -7,8 +7,6 @@ import (
 	"net/http"
 )
 
-var TemplateHome = "templates/html/home.html"
-
 func (h *Handler) HomePage(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/" {
 		h.HandleErrorPage(w, http.StatusNotFound, errors.New(http.StatusText(http.StatusNotFound)))
