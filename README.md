@@ -88,6 +88,5 @@ or
 $ make server
 ```
 
-## Authors
-
-[Certina01](https://01.alem.school/git/Certina01) && [AidanaErbolatova](https://01.alem.school/git/AidanaErbolatova)
+## Author
+[AidanaErbolatova](https://01.alem.school/git/AidanaErbolatova)
