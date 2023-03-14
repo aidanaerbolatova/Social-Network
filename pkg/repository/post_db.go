@@ -54,54 +54,54 @@ func (r *PostSQL) GetPostByUserID(id int) ([]models.Post, error) {
 	return result, nil
 }
 
-func (r *PostSQL) GetPost() (*[]models.Post, error) {
+func (r *PostSQL) GetPost() ([]models.Post, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(10*time.Second))
 	defer cancel()
 	var result []models.Post
 	var post models.Post
 	row, err := r.db.QueryContext(ctx, "SELECT *FROM post")
 	if err != nil {
-		return &result, err
+		return nil, err
 	}
 	defer row.Close()
 	for row.Next() {
 		if err := row.Scan(&post.Id, &post.UserId, &post.Title, &post.Text, &post.Categories, &post.CreatedAt, &post.Author, &post.Like, &post.Dislike, &post.Image); err != nil {
-			return &result, err
+			return nil, err
 		}
 		evaluates, err := NewEvaluateSQL(r.db).EvaluateCount(post.Id)
 		if err != nil {
-			return &[]models.Post{}, err
+			return nil, err
 		}
 		post.Like = evaluates.Like
 		post.Dislike = evaluates.Dislike
 		result = append(result, post)
 	}
 
-	return &result, nil
+	return result, nil
 }
 
-func (r *PostSQL) GetPostByTag(tags string) (*[]models.Post, error) {
+func (r *PostSQL) GetPostByTag(tags string) ([]models.Post, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(10*time.Second))
 	defer cancel()
 	var result []models.Post
 	var post models.Post
 	row, err := r.db.QueryContext(ctx, "SELECT * FROM post WHERE category like "+"'"+"%"+tags+"%'")
 	if err != nil {
-		return &result, err
+		return nil, err
 	}
 	for row.Next() {
 		if err := row.Scan(&post.Id, &post.UserId, &post.Title, &post.Text, &post.Categories, &post.CreatedAt, &post.Author, &post.Like, &post.Dislike, &post.Image); err != nil {
-			return &result, err
+			return nil, err
 		}
 		evaluates, err := NewEvaluateSQL(r.db).EvaluateCount(post.Id)
 		if err != nil {
-			return &result, err
+			return nil, err
 		}
 		post.Like = evaluates.Like
 		post.Dislike = evaluates.Dislike
 		result = append(result, post)
 	}
-	return &result, nil
+	return result, nil
 }
 
 func (r *PostSQL) GetPostByPostID(postId int) (models.Post, error) {

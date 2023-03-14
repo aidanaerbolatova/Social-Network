@@ -14,7 +14,7 @@ func NewHandler(services *service.Service) *Handler {
 	return &Handler{services: services}
 }
 
-func (h *Handler) InitRoutes() *http.ServeMux {
+func (h *Handler) InitRoutes() http.HandlerFunc {
 	router := http.NewServeMux()
 	router.HandleFunc("/", h.AuthMiddleware(h.HomePage))
 	router.HandleFunc("/signIn", h.SignIn)
@@ -50,5 +50,5 @@ func (h *Handler) InitRoutes() *http.ServeMux {
 
 	router.Handle("/templates/", http.StripPrefix("/templates/", http.FileServer(http.Dir("templates/"))))
 
-	return router
+	return h.RateLimitMiddleware(router)
 }

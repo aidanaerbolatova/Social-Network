@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+	"github.com/mattn/go-sqlite3"
 	"log"
 	"os"
 	"time"
@@ -26,8 +27,15 @@ type Config struct {
 
 func NewSQLiteDB() (*sql.DB, error) {
 	conf := ReadConfig()
-	foreignkey := "?_foreign_keys=on"
-	db, err := sql.Open("sqlite3", conf.DBName+foreignkey)
+	key := "?_foreign_keys=on"
+	sql.Register("sqlite3_log", &sqlite3.SQLiteDriver{
+		ConnectHook: func(conn *sqlite3.SQLiteConn) error {
+			log.Printf("Auth enabled %v\n", conn.AuthEnabled())
+			return nil
+		},
+	})
+	encryptDB := "?_auth&_auth_user=admin&_auth_pass=admin"
+	db, err := sql.Open("sqlite3", conf.DBName+encryptDB+key)
 	if err != nil {
 		return nil, err
 	}

@@ -26,7 +26,7 @@ func (h *Handler) HomePage(w http.ResponseWriter, r *http.Request) {
 
 	result := models.MyPost{
 		User:         user.Username,
-		Posts:        **post,
+		Posts:        post,
 		Notification: notifications,
 	}
 	tmpl, err := template.ParseFiles(TemplateHome)

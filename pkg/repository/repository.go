@@ -20,8 +20,8 @@ type Authorization interface {
 type Post interface {
 	CreatePosts(post models.Post) error
 	GetPostByUserID(id int) ([]models.Post, error)
-	GetPost() (*[]models.Post, error)
-	GetPostByTag(tags string) (*[]models.Post, error)
+	GetPost() ([]models.Post, error)
+	GetPostByTag(tags string) ([]models.Post, error)
 	GetPostByPostID(postId int) (models.Post, error)
 	UpdatePost(like string, dislike string, postId int) error
 	LikedPosts(userId int) ([]models.Post, error)

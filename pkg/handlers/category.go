@@ -42,7 +42,7 @@ func (h *Handler) CategoryPost(w http.ResponseWriter, r *http.Request) {
 			h.HandleErrorPage(w, http.StatusInternalServerError, errors.New(http.StatusText(http.StatusInternalServerError)))
 			return
 		}
-		result = **category
+		result = category
 		if err := temp.Execute(w, result); err != nil {
 			h.HandleErrorPage(w, http.StatusInternalServerError, errors.New(http.StatusText(http.StatusInternalServerError)))
 			return

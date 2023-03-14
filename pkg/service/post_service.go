@@ -21,14 +21,12 @@ func (s *PostService) GetPostByUserID(id int) ([]models.Post, error) {
 	return s.repo.GetPostByUserID(id)
 }
 
-func (s *PostService) GetPost() (**[]models.Post, error) {
-	result, _ := s.repo.GetPost()
-	return &result, nil
+func (s *PostService) GetPost() ([]models.Post, error) {
+	return s.repo.GetPost()
 }
 
-func (s *PostService) GetPostByTag(tags string) (**[]models.Post, error) {
-	result, _ := s.repo.GetPostByTag(tags)
-	return &result, nil
+func (s *PostService) GetPostByTag(tags string) ([]models.Post, error) {
+	return s.repo.GetPostByTag(tags)
 }
 
 func (s *PostService) GetPostByPostID(postId int) (models.Post, error) {
