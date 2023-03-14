@@ -34,7 +34,7 @@ func (r *PostSQL) GetPostByUserID(id int) ([]models.Post, error) {
 	defer cancel()
 	var result []models.Post
 	var post models.Post
-	row, err := r.db.QueryContext(ctx, "SELECT * FROM post WHERE userID=$1 ", id)
+	row, err := r.db.QueryContext(ctx, "SELECT id, userID, title, text, category, createdAt, author, like_vote, dislike, image FROM post WHERE userID=$1 ", id)
 	if err != nil {
 		return nil, err
 	}
@@ -59,7 +59,7 @@ func (r *PostSQL) GetPost() ([]models.Post, error) {
 	defer cancel()
 	var result []models.Post
 	var post models.Post
-	row, err := r.db.QueryContext(ctx, "SELECT *FROM post")
+	row, err := r.db.QueryContext(ctx, "SELECT id, userID, title, text, category, createdAt, author, like_vote, dislike, image FROM post")
 	if err != nil {
 		return nil, err
 	}
@@ -85,7 +85,7 @@ func (r *PostSQL) GetPostByTag(tags string) ([]models.Post, error) {
 	defer cancel()
 	var result []models.Post
 	var post models.Post
-	row, err := r.db.QueryContext(ctx, "SELECT * FROM post WHERE category like "+"'"+"%"+tags+"%'")
+	row, err := r.db.QueryContext(ctx, "SELECT id, userID, title, text, category, createdAt, author, like_vote, dislike, image FROM post WHERE category like "+"'"+"%"+tags+"%'")
 	if err != nil {
 		return nil, err
 	}
@@ -108,7 +108,7 @@ func (r *PostSQL) GetPostByPostID(postId int) (models.Post, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(10*time.Second))
 	defer cancel()
 	var post models.Post
-	row := r.db.QueryRowContext(ctx, "SELECT * FROM post WHERE id=$1", postId)
+	row := r.db.QueryRowContext(ctx, "SELECT id, userID, title, text, category, createdAt, author, like_vote, dislike, image FROM post WHERE id=$1", postId)
 	if err := row.Scan(&post.Id, &post.UserId, &post.Title, &post.Text, &post.Categories, &post.CreatedAt, &post.Author, &post.Like, &post.Dislike, &post.Image); err != nil {
 		return post, err
 	}

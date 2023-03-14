@@ -34,7 +34,7 @@ func (r *CommentSQL) GetCommentByPost(postId int) ([]models.Comments, error) {
 	defer cancel()
 	var result []models.Comments
 	var comment models.Comments
-	row, err := r.db.QueryContext(ctx, "SELECT * FROM comment WHERE postId=$1", postId)
+	row, err := r.db.QueryContext(ctx, "SELECT id,  userId, postId, comment, createdAt, author, like_vote, dislike FROM comment WHERE postId=$1", postId)
 	if err != nil {
 		return result, err
 	}
@@ -76,7 +76,7 @@ func (r *CommentSQL) GetCommentById(commentID int) (models.Comments, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(10*time.Second))
 	defer cancel()
 	var comment models.Comments
-	row := r.db.QueryRowContext(ctx, "SELECT * FROM comment WHERE id=$1", commentID)
+	row := r.db.QueryRowContext(ctx, "SELECT id,  userId, postId, comment, createdAt, author, like_vote, dislike FROM comment WHERE id=$1", commentID)
 	if err := row.Scan(&comment.Id, &comment.UserId, &comment.PostId, &comment.Comment, &comment.CreatedAt, &comment.Author, &comment.Like, &comment.Dislike); err != nil {
 		return comment, err
 	}

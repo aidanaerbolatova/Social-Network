@@ -27,7 +27,7 @@ func (r *AuthSQL) GetToken(token string) (models.Token, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(30*time.Second))
 	defer cancel()
 	var userToken models.Token
-	rows := r.db.QueryRowContext(ctx, "SELECT * FROM authorization_token WHERE auth_token=$1", token)
+	rows := r.db.QueryRowContext(ctx, "SELECT id, userId, auth_token, expires_at FROM authorization_token WHERE auth_token=$1", token)
 	if err := rows.Scan(&userToken.Id, &userToken.UserId, &userToken.AuthToken, &userToken.ExpiresAT); err != nil {
 		return userToken, err
 	}
@@ -39,11 +39,11 @@ func (r *AuthSQL) GetUserByToken(token string) (models.User, error) {
 	defer cancel()
 	var userToken models.Token
 	var user models.User
-	rows := r.db.QueryRowContext(ctx, "SELECT * FROM authorization_token WHERE auth_token=$1", token)
+	rows := r.db.QueryRowContext(ctx, "SELECT id, userId, auth_token, expires_at FROM authorization_token WHERE auth_token=$1", token)
 	if err := rows.Scan(&userToken.Id, &userToken.UserId, &userToken.AuthToken, &userToken.ExpiresAT); err != nil {
 		return user, err
 	}
-	row := r.db.QueryRowContext(ctx, "SELECT * FROM users WHERE id=$1", userToken.UserId)
+	row := r.db.QueryRowContext(ctx, "SELECT id, email, username, password, auth_method FROM users WHERE id=$1", userToken.UserId)
 	if err := row.Scan(&user.Id, &user.Email, &user.Username, &user.Password, &user.Method); err != nil {
 		return user, err
 	}

@@ -24,7 +24,7 @@ func (r *PostSQL) LikedPosts(userId int) ([]models.Post, error) {
 		posts = append(posts, evaluate.PostId)
 	}
 	for _, id := range posts {
-		if err := r.db.QueryRowContext(ctx, "SELECT * FROM post WHERE id=$1", id).
+		if err := r.db.QueryRowContext(ctx, "SELECT id, userID, title, text, category, createdAt, author, like_vote, dislike, image  FROM post WHERE id=$1", id).
 			Scan(&post.Id, &post.UserId, &post.Title, &post.Text, &post.Categories, &post.CreatedAt, &post.Author, &post.Like, &post.Dislike, &post.Image); err != nil {
 			return nil, err
 		}
@@ -52,7 +52,7 @@ func (r *PostSQL) DislikedPosts(userId int) ([]models.Post, error) {
 	}
 
 	for _, id := range posts {
-		if err := r.db.QueryRowContext(ctx, "SELECT * FROM post WHERE id=$1", id).
+		if err := r.db.QueryRowContext(ctx, "SELECT id, userID, title, text, category, createdAt, author, like_vote, dislike, image  FROM post WHERE id=$1", id).
 			Scan(&post.Id, &post.UserId, &post.Title, &post.Text, &post.Categories, &post.CreatedAt, &post.Author, &post.Like, &post.Dislike, &post.Image); err != nil {
 			return nil, err
 		}
@@ -81,7 +81,7 @@ func (r *PostSQL) CommentedPosts(userId int) ([]models.Post, error) {
 		}
 	}
 	for _, id := range posts {
-		if err := r.db.QueryRowContext(ctx, "SELECT * FROM post WHERE id=$1", id).
+		if err := r.db.QueryRowContext(ctx, "SELECT id, userID, title, text, category, createdAt, author, like_vote, dislike, image FROM post WHERE id=$1", id).
 			Scan(&post.Id, &post.UserId, &post.Title, &post.Text, &post.Categories, &post.CreatedAt, &post.Author, &post.Like, &post.Dislike, &post.Image); err != nil {
 			return nil, err
 		}
