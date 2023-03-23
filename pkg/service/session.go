@@ -18,13 +18,21 @@ var (
 )
 
 func (a *AuthService) GenerateToken(users models.User, oauth bool) (models.Token, error) {
-	// get user from db
-	user, err := a.repo.GetUser(users)
-	if err != nil {
-		return models.Token{}, err
+	var err error
+	var user models.User
+	if len(users.Email) == 0 {
+		user, err = a.repo.GetUserByUsername(users)
+		if err != nil {
+			return models.Token{}, err
+		}
+	} else {
+		user, err = a.repo.GetUserByEmail(users)
+		if err != nil {
+			return models.Token{}, err
+		}
 	}
 	if !oauth {
-		if err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(users.Password)); err != nil {
+		if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(users.Password)); err != nil {
 			return models.Token{}, err
 		}
 	}
@@ -34,6 +42,9 @@ func (a *AuthService) GenerateToken(users models.User, oauth bool) (models.Token
 		UserId:    user.Id,
 		AuthToken: uuid.NewString(),
 		ExpiresAT: time.Now().Add(12 * time.Hour),
+	}
+	if err = a.repo.DeleteTokenByUserID(token.UserId); err != nil {
+		return models.Token{}, err
 	}
 	token2, err := a.repo.AddToken(token)
 	if err != nil {
@@ -52,7 +63,11 @@ func (a *AuthService) GetToken(token string) (models.Token, error) {
 }
 
 func (a *AuthService) GetUserByToken(token string) (models.User, error) {
-	tokenStruct, err := a.repo.GetUserByToken(token)
+	userId, err := a.repo.GetUserIdByToken(token)
+	if err != nil {
+		return models.User{}, err
+	}
+	tokenStruct, err := a.repo.GetUserByToken(userId)
 	if err != nil {
 		return models.User{}, err
 	}

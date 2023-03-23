@@ -8,11 +8,13 @@ import (
 
 type Authorization interface {
 	CreateUser(user models.User) error
-	GetUser(user models.User) (models.User, error)
+	GetUserByUsername(user models.User) (models.User, error)
+	GetUserByEmail(user models.User) (models.User, error)
 	AddToken(token models.Token) (models.Token, error)
 	CheckInvalid(user models.User) (models.User, error)
 	GetToken(token string) (models.Token, error)
-	GetUserByToken(token string) (models.User, error)
+	GetUserIdByToken(token string) (int, error)
+	GetUserByToken(userId int) (models.User, error)
 	DeleteToken(token string) error
 	DeleteTokenByUserID(id int) error
 }

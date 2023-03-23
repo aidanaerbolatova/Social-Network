@@ -3,22 +3,17 @@ package repository
 import (
 	"Forum/models"
 	"context"
-	"fmt"
 	"time"
 )
 
 func (r *AuthSQL) AddToken(token models.Token) (models.Token, error) {
-	if err := r.DeleteTokenByUserID(token.UserId); err != nil {
-		return token, err
-	}
-	records := fmt.Sprintf("INSERT INTO %s (userId, auth_token, expires_at) values ($1, $2, $3)", tokenTable)
-	query, err := r.db.Prepare(records)
+	query, err := r.db.Prepare("INSERT INTO authorization_token (userId, auth_token, expires_at) values ($1, $2, $3)")
 	if err != nil {
-		return token, err
+		return models.Token{}, err
 	}
 	_, err = query.Exec(token.UserId, token.AuthToken, token.ExpiresAT)
 	if err != nil {
-		return token, err
+		return models.Token{}, err
 	}
 	return token, nil
 }
@@ -34,17 +29,21 @@ func (r *AuthSQL) GetToken(token string) (models.Token, error) {
 	return userToken, nil
 }
 
-func (r *AuthSQL) GetUserByToken(token string) (models.User, error) {
+func (r *AuthSQL) GetUserIdByToken(token string) (int, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(10*time.Second))
 	defer cancel()
-	var userToken models.Token
-	var user models.User
-	rows := r.db.QueryRowContext(ctx, "SELECT id, userId, auth_token, expires_at FROM authorization_token WHERE auth_token=$1", token)
-	if err := rows.Scan(&userToken.Id, &userToken.UserId, &userToken.AuthToken, &userToken.ExpiresAT); err != nil {
-		return user, err
+	var userId int
+	if err := r.db.QueryRowContext(ctx, "SELECT userId FROM authorization_token WHERE auth_token=$1", token).Scan(&userId); err != nil {
+		return userId, err
 	}
-	row := r.db.QueryRowContext(ctx, "SELECT id, email, username, password, auth_method FROM users WHERE id=$1", userToken.UserId)
-	if err := row.Scan(&user.Id, &user.Email, &user.Username, &user.Password, &user.Method); err != nil {
+	return userId, nil
+}
+
+func (r *AuthSQL) GetUserByToken(userId int) (models.User, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(10*time.Second))
+	defer cancel()
+	var user models.User
+	if err := r.db.QueryRowContext(ctx, "SELECT id, email, username, password, auth_method FROM users WHERE id=$1", userId).Scan(&user.Id, &user.Email, &user.Username, &user.Password, &user.Method); err != nil {
 		return user, err
 	}
 	return user, nil

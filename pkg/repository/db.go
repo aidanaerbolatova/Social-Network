@@ -12,9 +12,9 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-const (
-	tokenTable = "authorization_token"
-)
+//const (
+//	tokenTable = "authorization_token"
+//)
 
 type Config struct {
 	Host     string `json:"host"`

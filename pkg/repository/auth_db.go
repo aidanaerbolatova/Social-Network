@@ -29,18 +29,22 @@ func (r *AuthSQL) CreateUser(user models.User) error {
 	return nil
 }
 
-func (r *AuthSQL) GetUser(user models.User) (models.User, error) {
+func (r *AuthSQL) GetUserByUsername(user models.User) (models.User, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(10*time.Second))
 	defer cancel()
 	var getUser models.User
-	if len(user.Email) == 0 {
-		if err := r.db.QueryRowContext(ctx, "SELECT id, email, username, password FROM users WHERE username = $1 AND auth_method=$2 ", user.Username, user.Method).Scan(&getUser.Id, &getUser.Email, &getUser.Username, &getUser.Password); err != nil {
-			return models.User{}, err
-		}
-	} else {
-		if err := r.db.QueryRowContext(ctx, "SELECT id, email, username, password FROM users WHERE email = $1 AND auth_method=$2 ", user.Email, user.Method).Scan(&getUser.Id, &getUser.Email, &getUser.Username, &getUser.Password); err != nil {
-			return models.User{}, err
-		}
+	if err := r.db.QueryRowContext(ctx, "SELECT id, email, username, password FROM users WHERE username = $1 AND auth_method=$2 ", user.Username, user.Method).Scan(&getUser.Id, &getUser.Email, &getUser.Username, &getUser.Password); err != nil {
+		return models.User{}, err
+	}
+	return getUser, nil
+}
+
+func (r *AuthSQL) GetUserByEmail(user models.User) (models.User, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(10*time.Second))
+	defer cancel()
+	var getUser models.User
+	if err := r.db.QueryRowContext(ctx, "SELECT id, email, username, password FROM users WHERE email = $1 AND auth_method=$2 ", user.Email, user.Method).Scan(&getUser.Id, &getUser.Email, &getUser.Username, &getUser.Password); err != nil {
+		return models.User{}, err
 	}
 	return getUser, nil
 }
