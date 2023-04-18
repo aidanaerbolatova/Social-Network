@@ -175,6 +175,20 @@
     height: 23px;
 }
 
+#following{
+    padding-right: 7px;
+    margin-right: 7px;
+    width: 27px;
+    height: 23px;
+}
+
+#followers{
+    padding-right: 7px;
+    margin-right: 7px;
+    width: 27px;
+    height: 23px;
+}
+
 /* ------------------------error page---------------- */
 .status {
     background: repeating-linear-gradient(to right, #eeeeee, #bbb3b3 10%, #f0e7e7 20%);
