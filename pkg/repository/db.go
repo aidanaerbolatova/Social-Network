@@ -4,10 +4,12 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
-	"github.com/mattn/go-sqlite3"
+	"fmt"
 	"log"
 	"os"
 	"time"
+
+	"github.com/mattn/go-sqlite3"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -30,7 +32,7 @@ func NewSQLiteDB() (*sql.DB, error) {
 	key := "?_foreign_keys=on"
 	sql.Register("sqlite3_log", &sqlite3.SQLiteDriver{
 		ConnectHook: func(conn *sqlite3.SQLiteConn) error {
-			log.Printf("Auth enabled %v\n", conn.AuthEnabled())
+			log.Printf("Auth enabled %v\n", conn)
 			return nil
 		},
 	})
@@ -41,6 +43,7 @@ func NewSQLiteDB() (*sql.DB, error) {
 	}
 	// проверка подкл. бд
 	if err = db.Ping(); err != nil {
+		fmt.Println(err)
 		return nil, err
 	}
 	if err = CreateTables(db); err != nil {
