@@ -22,14 +22,14 @@ func init() {
 }
 
 // WithRqId returns a context which knows its request ID
-func WithRqId(ctx context.Context, reqID string) context.Context {
-	return context.WithValue(ctx, requestIdKey, reqID)
-}
+//func WithRqId(ctx context.Context, reqID string) context.Context {
+//	return context.WithValue(ctx, requestIdKey, reqID)
+//}
 
 // WithSessionId returns a context which knows its session ID
-func WithSessionId(ctx context.Context, sessionId string) context.Context {
-	return context.WithValue(ctx, sessionIdKey, sessionId)
-}
+//func WithSessionId(ctx context.Context, sessionId string) context.Context {
+//	return context.WithValue(ctx, sessionIdKey, sessionId)
+//}
 
 // Logger returns a zap logger with as much context as possible
 func Logger(ctx context.Context) zap.SugaredLogger {

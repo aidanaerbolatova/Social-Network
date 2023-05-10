@@ -15,4 +15,5 @@ var (
 	TemplateGetUsername    = "templates/html/get_username.html"
 	TemplateMyPost         = "templates/html/myposts.html"
 	TemplatePost           = "templates/html/post.html"
+	TemplateFollow         = "templates/html/follow.html"
 )

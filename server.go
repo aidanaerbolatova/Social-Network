@@ -1,8 +1,13 @@
 package Forum
 
 import (
+	"Forum/logger"
+	"context"
 	"crypto/tls"
+	"log"
 	"net/http"
+	"os"
+	"os/signal"
 	"time"
 )
 
@@ -11,6 +16,10 @@ type Server struct {
 }
 
 func (s *Server) Run(port string, handler http.HandlerFunc) error {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	gracefullyShutdown(cancel)
+	l := logger.Logger(ctx)
 	config := &tls.Config{
 		ServerName: "localhost",
 		MinVersion: tls.VersionTLS11,
@@ -39,5 +48,15 @@ func (s *Server) Run(port string, handler http.HandlerFunc) error {
 		ReadHeaderTimeout: 2 * time.Second,
 		TLSConfig:         config,
 	}
+	l.Info("App success starting")
 	return s.httpServer.ListenAndServeTLS("go-server.crt", "go-server.key")
+}
+
+func gracefullyShutdown(c context.CancelFunc) {
+	osC := make(chan os.Signal, 1)
+	signal.Notify(osC, os.Interrupt)
+	go func() {
+		log.Print(<-osC)
+		c()
+	}()
 }

@@ -51,3 +51,11 @@ func generatePasswordHash(password string) (string, error) {
 	}
 	return string(bytes), nil
 }
+
+func (s *AuthService) GetUserByUserId(id int) (models.User, error) {
+	return s.repo.GetUserByUserId(id)
+}
+
+func (s *AuthService) GetUser(username string) (models.User, error) {
+	return s.repo.GetUser(username)
+}

@@ -47,6 +47,9 @@ func (h *Handler) InitRoutes() http.HandlerFunc {
 	router.HandleFunc("/commentedPosts", h.AuthMiddleware(h.CommentedPosts))
 	router.HandleFunc("/likeComment", h.AuthMiddleware(h.LikeComment))
 	router.HandleFunc("/dislikeComment", h.AuthMiddleware(h.DislikeComment))
+	router.HandleFunc("/following", h.AuthMiddleware(h.Following))
+	router.HandleFunc("/follow", h.AuthMiddleware(h.Follow))
+	router.HandleFunc("/unfollow", h.AuthMiddleware(h.UnFollowing))
 
 	router.Handle("/templates/", http.StripPrefix("/templates/", http.FileServer(http.Dir("templates/"))))
 

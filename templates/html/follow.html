@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+<head>
+<title>FORUM</title>
+<!-- Required meta tags -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<style>
+    body {font-family: Arial;}
+    
+    /* Style the tab */
+    .tab {
+      overflow: hidden;
+      border: 1px solid #ccc;
+      background-color: #242b33;
+    }
+    
+    /* Style the buttons inside the tab */
+    .tab button {
+      background-color: inherit;
+      float: left;
+      border: none;
+      outline: none;
+      cursor: pointer;
+      padding: 14px 16px;
+      transition: 0.3s;
+      font-size: 17px;
+    }
+    
+    /* Change background color of buttons on hover */
+    .tab button:hover {
+      background-color: #ddd;
+    }
+    
+    /* Create an active/current tablink class */
+    .tab button.active {
+      background-color: #ccc;
+    }
+    
+    /* Style the tab content */
+    .tabcontent {
+      display: none;
+      padding: 6px 12px;
+      border-top: none;
+    }
+</style>
+<link rel="stylesheet" href="/templates/css/style.css">
+
+<!-- Bootstrap CSS v5.2.0-beta1 -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css"  integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
+</head>
+<body style="background: #171c22">
+<nav class="navbar navbar-expand-lg" >
+<div class="container-fluid">
+<a class="navbar-brand ms-3 text-white " id="forum" href="/">FORUM</a>
+<div class="collapse navbar-collapse" id="navbarSupportedContent">
+    <ul class="navbar-nav m-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+            <a href="/" class="nav-link active text-white" aria-current="page">Home</a>
+        </li>
+        <li class="nav-item">
+            <a href="/categoryPost" class="nav-link active text-white" aria-current="page" >Category</a>
+        </li>
+    </ul>
+    {{ if .User}}
+    <form action="/logout" method="post">
+        <button class="border-0 signout text-white">Sign Out</button>
+    </form>
+    {{else}}
+    <a href="/signIn" class="text-decoration-none text-white" title="Account">
+        <span>Account</span>
+    </a>
+    {{end}}
+</div>
+</div>
+</nav>
+<!-- --------------------------------------------------menu------------------------------------------------------------------- -->
+<div class="container-fluid">
+    <div class="row " id="row">
+    {{if .User}}
+        <div class="col-2" >
+            <div class="img"><img class="rounded-circle" id="img" src="/templates/images/profile.jpg"></div>
+            <div class="username text-white" id="username"><p>{{ .User.Username}}</p></div>
+            <div class="myposts py-3">
+                <a href="/" class="text-decoration-none text-secondary" ><img src="/templates/images/home.png"><span>Home</span></a>
+            </div>
+            <div class="filterCategory py-3">
+                <a href="/categoryPost" class="text-decoration-none text-secondary"><img src="/templates/images/category.png" id="categoryImg"  ><span>Categories</span></a>
+            </div>
+            <div class="filterUsers py-3">
+                <a href="/myposts" class="text-decoration-none text-secondary"><img src="/templates/images/user.png" id="myPostImg"><span>My posts</span></a>
+            </div>
+            <div class="filterLikes py-3">
+                <a href="/likedPost" class="text-decoration-none text-secondary"><img src="/templates/images/like.png" id="likeImg"><span>Liked Posts</span></a>
+            </div>
+            <div class="filterLikes py-3">
+                <a href="/dislikedPosts" class="text-decoration-none text-secondary"><img src="/templates/images/dislike.png" id="dislikeImg"><span>Disliked Posts</span></a>
+            </div>
+            <div class="filterLikes py-3">
+                <a href="/commentedPosts" class="text-decoration-none text-secondary"><img src="/templates/images/comment.png" id="commentImg"><span>Commented Posts</span></a>
+            </div>
+            <div class="filterLikes py-3">
+                <a href="/follow" class="text-decoration-none text-secondary d-flex"><img src="/templates/images/follow.png" id="commentImg"><span>Follow</span></a>
+            </div>
+            <div class="allposts py-3">
+                <a href="/createPost" class="text-decoration-none text-secondary"><img src="/templates/images/createPost.png"><span>Create Post</span></a>
+            </div>
+        </div>
+        {{end}}
+        <div class="col mt-3">
+            <div class="tab border-0 rounded">
+                <button class="tablinks text-secondary" onclick="openCity(event, 'followers')">Followers</button>
+                <button class="tablinks text-secondary" onclick="openCity(event, 'Following')">Following</button>
+            </div>
+              
+            <div id="followers" class="tabcontent text-secondary">
+                {{ range .Followers}}
+                  <div class="border-0 rounded my-2 d-flex p-2"  style="background-color: #242b33;">
+                    <div class="m-3">
+                        <img src="templates/images/user.png" alt="">
+                    </div>
+                    <div class="m-2">
+                        <h6>{{.Username}}</h6>
+                        <h6>{{.Email}}</h6>
+                    </div>
+                  </div>
+                {{end}}
+            </div>
+            
+            <div id="Following" class="tabcontent text-secondary">
+                {{ range .Following}}
+                  <div class="border-0 rounded my-2 d-flex p-2"  style="background-color: #242b33;">
+                    <div class="m-3">
+                        <img src="templates/images/user.png" alt="">
+                    </div>
+                    <div class="m-2">
+                        <h6>{{.Username}}</h6>
+                        <h6>{{.Email}}</h6>
+                    </div>
+                    <form action="/unfollow" method="post" class="follow m-2">
+                        <button class="btn btn-outline-secondary" style="border-color:#313840 ; color: aliceblue; height: 40px; width: 100px" type="submit" name="username" value="{{.Username}}">unfollow</button>
+                    </form>
+                  </div>
+                {{end}}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap JavaScript Libraries -->
+<script>
+    function openCity(evt, cityName) {
+      var i, tabcontent, tablinks;
+      tabcontent = document.getElementsByClassName("tabcontent");
+      for (i = 0; i < tabcontent.length; i++) {
+        tabcontent[i].style.display = "none";
+      }
+      tablinks = document.getElementsByClassName("tablinks");
+      for (i = 0; i < tablinks.length; i++) {
+        tablinks[i].className = tablinks[i].className.replace(" active", "");
+      }
+      document.getElementById(cityName).style.display = "block";
+      evt.currentTarget.className += " active";
+    }
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.5/dist/umd/popper.min.js" integrity="sha384-Xe+8cL9oJa6tN/veChSP7q+mnSPaj5Bcu9mPX5F5xIGE0DVittaqT5lorf0EI7Vk" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.min.js" integrity="sha384-kjU+l4N0Yf4ZOJErLsIcvOU2qSb74wXpOhqTvwVx3OElZRweTnQ6d31fXEoRD1Jy" crossorigin="anonymous"></script>
+</body>
+</html>

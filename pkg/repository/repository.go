@@ -8,8 +8,10 @@ import (
 
 type Authorization interface {
 	CreateUser(user models.User) error
+	GetUser(username string) (models.User, error)
 	GetUserByUsername(user models.User) (models.User, error)
 	GetUserByEmail(user models.User) (models.User, error)
+	GetUserByUserId(id int) (models.User, error)
 	AddToken(token models.Token) (models.Token, error)
 	CheckInvalid(user models.User) (models.User, error)
 	GetToken(token string) (models.Token, error)
@@ -57,11 +59,20 @@ type Evaluate interface {
 	CheckCommentVote(userId, postId, vote int) error
 }
 
+type Follow interface {
+	CreateFollow(follow models.Follow) error
+	DeleteFollow(follow models.Follow) error
+	CheckFollow(follow models.Follow) error
+	MyFollowers(userId int) ([]string, error)
+	Following(userId int) ([]string, error)
+}
+
 type Repository struct {
 	Authorization
 	Post
 	Comment
 	Evaluate
+	Follow
 }
 
 func NewRepository(db *sql.DB) *Repository {
@@ -70,5 +81,6 @@ func NewRepository(db *sql.DB) *Repository {
 		Post:          NewPostSQL(db),
 		Comment:       NewCommentSQL(db),
 		Evaluate:      NewEvaluateSQL(db),
+		Follow:        NewFollowSQL(db),
 	}
 }

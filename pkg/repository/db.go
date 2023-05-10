@@ -4,12 +4,10 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
-	"fmt"
+	"github.com/mattn/go-sqlite3"
 	"log"
 	"os"
 	"time"
-
-	"github.com/mattn/go-sqlite3"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -32,7 +30,7 @@ func NewSQLiteDB() (*sql.DB, error) {
 	key := "?_foreign_keys=on"
 	sql.Register("sqlite3_log", &sqlite3.SQLiteDriver{
 		ConnectHook: func(conn *sqlite3.SQLiteConn) error {
-			log.Printf("Auth enabled %v\n", conn)
+			log.Printf("Auth enabled %v\n", conn.AuthEnabled())
 			return nil
 		},
 	})
@@ -43,7 +41,6 @@ func NewSQLiteDB() (*sql.DB, error) {
 	}
 	// проверка подкл. бд
 	if err = db.Ping(); err != nil {
-		fmt.Println(err)
 		return nil, err
 	}
 	if err = CreateTables(db); err != nil {
@@ -133,6 +130,11 @@ func CreateTables(db *sql.DB) error {
 	    from_user TEXT NOT NULL,
 	    to_user TEXT NOT NULL,
 	    action_user TEXT NOT NULL
+	);
+	CREATE TABLE IF NOT EXISTS follow (
+	    id INTEGER NOT NULL PRIMARY KEY,
+	    userId INTEGER NOT NULL,
+	    followerId INTEGER NOT NULL 
 	);
 	`
 	if _, err := db.ExecContext(ctx, query); err != nil {

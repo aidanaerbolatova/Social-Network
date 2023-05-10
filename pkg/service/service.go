@@ -9,8 +9,10 @@ type Authorization interface {
 	CreateUser(user models.User) error
 	GenerateToken(user models.User, oauth bool) (models.Token, error)
 	GetToken(token string) (models.Token, error)
+	GetUser(username string) (models.User, error)
 	GetUserByToken(token string) (models.User, error)
 	DeleteToken(token string) error
+	GetUserByUserId(id int) (models.User, error)
 }
 
 type Post interface {
@@ -51,11 +53,20 @@ type Evaluate interface {
 	CheckCommentVote(userId, postId, vote int) error
 }
 
+type Follow interface {
+	CreateFollow(follow models.Follow) error
+	DeleteFollow(follow models.Follow) error
+	CheckFollow(follow models.Follow) error
+	MyFollowers(userId int) ([]string, error)
+	Following(userId int) ([]string, error)
+}
+
 type Service struct {
 	Authorization
 	Post
 	Comment
 	Evaluate
+	Follow
 }
 
 func NewService(repo *repository.Repository) *Service {
@@ -64,5 +75,6 @@ func NewService(repo *repository.Repository) *Service {
 		Post:          NewPostService(repo.Post),
 		Comment:       NewCommentService(repo.Comment),
 		Evaluate:      NewEvaluateService(repo.Evaluate),
+		Follow:        NewFollowService(repo.Follow),
 	}
 }

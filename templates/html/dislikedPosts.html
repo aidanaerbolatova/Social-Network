@@ -54,10 +54,7 @@
         <a href="/commentedPosts" class="text-decoration-none text-secondary"><img src="/templates/images/comment.png" id="commentImg"><span>Commented Posts</span></a>
       </div>
       <div class="filterLikes py-3">
-        <a href="/following" class="text-decoration-none text-secondary"><img src="/templates/images/follow.png" id="following"><span>Following</span></a>
-      </div>
-      <div class="filterLikes py-3">
-        <a href="/followers" class="text-decoration-none text-secondary"><img src="/templates/images/follow.png" id="followers"><span>Followers</span></a>
+        <a href="/follow" class="text-decoration-none text-secondary"><img src="/templates/images/follow.png" id="followers"><span>Follow Page</span></a>
       </div>
       <div class="allposts py-3">
         <a href="/createPost" class="text-decoration-none text-secondary"><img src="/templates/images/createPost.png"><span>Create Post</span></a>
@@ -71,10 +68,13 @@
           <div class="userPhoto col-1" style="padding-left: 2%; width: 4%;">
             <img src="templates/images/user.png" alt="" style="width: 45px;">
           </div>
-          <div class="userUsername col-10 px-4">
+          <div class="userUsername col-2 px-4">
             <span style="color: white;">{{.Author}}</span>
             <p style="color: white; font-size: 13px;">{{.CreatedAt}}</p>
           </div>
+          <form action="/following" method="post" class="follow col-8">
+            <button class="btn btn-outline-secondary" style="border-color:#313840 ; color: aliceblue; height: 40px; width: 100px" type="submit" value="{{.UserId}}" name="userID">follow</button>
+          </form>
         </div>
         <div class="printPost" style="padding-left: 20px;">
           <span class="p-1" style="color: aliceblue; font-weight: bold;">Category:</span>

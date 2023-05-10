@@ -100,3 +100,14 @@ type ErrorHTTP struct {
 	Status  int
 	Message error
 }
+
+type Follow struct {
+	UserId   int
+	AuthorId int
+}
+
+type AllFollow struct {
+	User      User
+	Followers []User
+	Following []User
+}

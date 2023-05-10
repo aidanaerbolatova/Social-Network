@@ -39,6 +39,16 @@ func (r *AuthSQL) GetUserByUsername(user models.User) (models.User, error) {
 	return getUser, nil
 }
 
+func (r *AuthSQL) GetUser(username string) (models.User, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(10*time.Second))
+	defer cancel()
+	var user models.User
+	if err := r.db.QueryRowContext(ctx, "SELECT id, email, username, password FROM users WHERE username = $1", username).Scan(&user.Id, &user.Email, &user.Username, &user.Password); err != nil {
+		return models.User{}, err
+	}
+	return user, nil
+}
+
 func (r *AuthSQL) GetUserByEmail(user models.User) (models.User, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(10*time.Second))
 	defer cancel()
@@ -47,6 +57,16 @@ func (r *AuthSQL) GetUserByEmail(user models.User) (models.User, error) {
 		return models.User{}, err
 	}
 	return getUser, nil
+}
+
+func (r *AuthSQL) GetUserByUserId(id int) (models.User, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(10*time.Second))
+	defer cancel()
+	var user models.User
+	if err := r.db.QueryRowContext(ctx, "SELECT email, username FROM users WHERE id=$1", id).Scan(&user.Email, &user.Username); err != nil {
+		return models.User{}, err
+	}
+	return user, nil
 }
 
 func (r *AuthSQL) CheckInvalid(user models.User) (models.User, error) {
